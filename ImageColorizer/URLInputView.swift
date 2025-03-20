@@ -1,13 +1,21 @@
 import SwiftUI
 
 struct URLInputView: View {
+    @Binding var backendURL: String // Binding to update the URL
     @State private var urlString: String = ""
     @State private var isURLValid: Bool = false
     @State private var showAlert: Bool = false
+    @Environment(\.presentationMode) var presentationMode // Use presentationMode to dismiss the view
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
+                
+                Text("Configure URL")
+                    .font(.title2)
+                    .fontWeight(.bold)
+                    .foregroundColor(.primary)
+                    .multilineTextAlignment(.center)
                 // URL Input Field
                 TextField("Enter Flask Backend URL", text: $urlString)
                     .textFieldStyle(RoundedBorderTextFieldStyle())
@@ -18,9 +26,16 @@ struct URLInputView: View {
                         isURLValid = URL(string: newValue) != nil
                     }
 
-                // Proceed Button
-                NavigationLink(destination: ContentView(backendURL: urlString)) {
-                    Text("Proceed")
+                // Save Button
+                Button(action: {
+                    if isURLValid {
+                        backendURL = urlString // Save the URL
+                        presentationMode.wrappedValue.dismiss() // Dismiss the view
+                    } else {
+                        showAlert = true
+                    }
+                }) {
+                    Text("Save")
                         .font(.headline)
                         .padding()
                         .frame(maxWidth: .infinity)
@@ -33,7 +48,6 @@ struct URLInputView: View {
                 .padding(.horizontal)
             }
             .padding()
-            .navigationTitle("Enter Backend URL")
             .alert(isPresented: $showAlert) {
                 Alert(
                     title: Text("Invalid URL"),
@@ -49,6 +63,24 @@ struct URLInputView: View {
 // Preview
 struct URLInputView_Previews: PreviewProvider {
     static var previews: some View {
-        URLInputView()
+        // Use a State variable to simulate the backendURL binding
+        StatefulPreviewWrapper("") { backendURL in
+            URLInputView(backendURL: backendURL)
+        }
+    }
+}
+
+// Helper struct to simulate a State variable in previews
+struct StatefulPreviewWrapper<Value, Content: View>: View {
+    @State private var value: Value
+    let content: (Binding<Value>) -> Content
+
+    init(_ initialValue: Value, @ViewBuilder content: @escaping (Binding<Value>) -> Content) {
+        self._value = State(initialValue: initialValue)
+        self.content = content
+    }
+
+    var body: some View {
+        content($value)
     }
 }
