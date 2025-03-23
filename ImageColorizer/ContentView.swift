@@ -10,98 +10,151 @@ struct ContentView: View {
     var backendURL: String
 
     var body: some View {
-        VStack(spacing: 20) {
-            // Original Image Section
-            if let inputImage = inputImage {
-                VStack(spacing: 10) {
-                    Text("Original Image")
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    Image(uiImage: inputImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 300, height: 300)
-                        .cornerRadius(10)
-                        .shadow(radius: 5)
-                }
-            } else {
-                Text("Select an image to colorize")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-                    .padding()
-                    .multilineTextAlignment(.center)
-            }
-
-            // Colorized Image Section
-            if isLoading {
-                ProgressView()
-                    .padding()
-            } else if let outputImage = outputImage {
-                VStack(spacing: 10) {
-                    Text("Colorized Image")
-                        .font(.headline)
-                        .foregroundColor(.primary)
-                    Image(uiImage: outputImage)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(width: 300, height: 300)
-                        .cornerRadius(10)
-                        .shadow(radius: 5)
-                }
-            }
-
-            // Buttons (Side by Side)
-            HStack(spacing: 20) {
-                Button(action: {
-                    showingImagePicker = true
-                }) {
-                    Text("Select Image")
-                        .font(.headline)
-                        .padding()
-                        .frame(width: 180, height: 60)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .shadow(radius: 5)
-                }
-
-                if inputImage != nil && !isLoading {
-                    Button(action: {
-                        colorizeImage()
-                    }) {
-                        Text("Colorize Image")
-                            .font(.headline)
+        GeometryReader { geometry in
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Original Image Section
+                    if let inputImage = inputImage {
+                        VStack(spacing: 10) {
+                            Text("Original Image")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            Image(uiImage: inputImage)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: min(geometry.size.width * 0.8, 300), maxHeight: 300)
+                                .cornerRadius(10)
+                                .shadow(radius: 5)
+                        }
+                    } else {
+                        Text("Select an image to colorize")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundColor(.primary)
                             .padding()
-                            .frame(width: 180, height: 60)
-                            .background(Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                            .shadow(radius: 5)
+                            .multilineTextAlignment(.center)
+                    }
+
+                    // Colorized Image Section
+                    if isLoading {
+                        ProgressView()
+                            .padding()
+                    } else if let outputImage = outputImage {
+                        VStack(spacing: 10) {
+                            Text("Colorized Image")
+                                .font(.headline)
+                                .foregroundColor(.primary)
+                            Image(uiImage: outputImage)
+                                .resizable()
+                                .scaledToFit()
+                                .frame(maxWidth: min(geometry.size.width * 0.8, 300), maxHeight: 300)
+                                .cornerRadius(10)
+                                .shadow(radius: 5)
+                        }
+                    }
+
+                    // Buttons (Adaptive Layout)
+                    if geometry.size.width > 600 {
+                        // Horizontal Layout for Wide Screens
+                        HStack(spacing: 10) {
+                            Button(action: {
+                                showingImagePicker = true
+                            }) {
+                                Text("Select Image")
+                                    .font(.headline)
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+                                    .shadow(radius: 5)
+                            }
+
+                            if inputImage != nil && !isLoading {
+                                Button(action: {
+                                    colorizeImage()
+                                }) {
+                                    Text("Colorize Image")
+                                        .font(.headline)
+                                        .padding()
+                                        .frame(maxWidth: .infinity)
+                                        .background(Color.green)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(10)
+                                        .shadow(radius: 5)
+                                }
+                            }
+
+                            if outputImage != nil {
+                                Button(action: {
+                                    saveImageToGallery(outputImage!)
+                                }) {
+                                    Text("Save to Gallery")
+                                        .font(.headline)
+                                        .padding()
+                                        .frame(maxWidth: .infinity)
+                                        .background(Color.blue)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(10)
+                                        .shadow(radius: 5)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    } else {
+                        // Vertical Layout for Narrow Screens
+                        VStack(spacing: 10) {
+                            Button(action: {
+                                showingImagePicker = true
+                            }) {
+                                Text("Select Image")
+                                    .font(.headline)
+                                    .padding()
+                                    .frame(maxWidth: .infinity)
+                                    .background(Color.blue)
+                                    .foregroundColor(.white)
+                                    .cornerRadius(10)
+                                    .shadow(radius: 5)
+                            }
+
+                            if inputImage != nil && !isLoading {
+                                Button(action: {
+                                    colorizeImage()
+                                }) {
+                                    Text("Colorize Image")
+                                        .font(.headline)
+                                        .padding()
+                                        .frame(maxWidth: .infinity)
+                                        .background(Color.green)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(10)
+                                        .shadow(radius: 5)
+                                }
+                            }
+
+                            if outputImage != nil {
+                                Button(action: {
+                                    saveImageToGallery(outputImage!)
+                                }) {
+                                    Text("Save to Gallery")
+                                        .font(.headline)
+                                        .padding()
+                                        .frame(maxWidth: .infinity)
+                                        .background(Color.blue)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(10)
+                                        .shadow(radius: 5)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
                     }
                 }
-                
-                // Save to Gallery Button
-                if outputImage != nil {
-                    Button(action: {
-                        saveImageToGallery(outputImage!)
-                    }) {
-                        Text("Save to Gallery")
-                            .font(.headline)
-                            .padding()
-                            .frame(width: 180, height: 60)
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                            .shadow(radius: 5)
-                    }
-                }
+                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(Color(.systemBackground))
             }
-            .padding(.horizontal)
         }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(.systemBackground))
         .sheet(isPresented: $showingImagePicker, onDismiss: loadImage) {
             ImagePicker(image: $inputImage)
         }
@@ -178,43 +231,39 @@ struct ContentView: View {
     }
 }
 
-    
-    
-    struct ImagePicker: UIViewControllerRepresentable {
-        @Binding var image: UIImage?
-        
-        func makeUIViewController(context: Context) -> some UIViewController {
-            let picker = UIImagePickerController()
-            picker.delegate = context.coordinator
-            return picker
+struct ImagePicker: UIViewControllerRepresentable {
+    @Binding var image: UIImage?
+
+    func makeUIViewController(context: Context) -> some UIViewController {
+        let picker = UIImagePickerController()
+        picker.delegate = context.coordinator
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+        let parent: ImagePicker
+
+        init(_ parent: ImagePicker) {
+            self.parent = parent
         }
-        
-        func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {}
-        
-        func makeCoordinator() -> Coordinator {
-            Coordinator(self)
-        }
-        
-        class Coordinator: NSObject, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
-            let parent: ImagePicker
-            
-            init(_ parent: ImagePicker) {
-                self.parent = parent
+
+        func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
+            if let image = info[.originalImage] as? UIImage {
+                parent.image = image
             }
-            
-            func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
-                if let image = info[.originalImage] as? UIImage {
-                    parent.image = image
-                }
-                picker.dismiss(animated: true)
-            }
+            picker.dismiss(animated: true)
         }
     }
-    
-    // Preview
-    struct ContentView_Previews: PreviewProvider {
-        static var previews: some View {
-            ContentView(backendURL: "http://example.com/colorize")
-        }
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView(backendURL: "http://example.com/colorize")
     }
-    
+}
