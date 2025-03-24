@@ -9,15 +9,18 @@ struct MainView: View {
         NavigationStack {
             ZStack {
                 // Background Image
-                Image("background") // Replace with the name of your image file
+                Image("background")
                     .resizable()
                     .scaledToFill()
-                    .edgesIgnoringSafeArea(.all) // Make the image cover the entire screen
+                    .edgesIgnoringSafeArea(.all)
 
                 // Main Content
-                VStack(spacing: 40) {
+                VStack(spacing: 10) {
                     
                     Spacer()
+                    Text("Welcome to")
+                        .font(.headline)
+                        .foregroundColor(.white)
                     // Title
                     Text("smAIrtColorizer")
                         .font(.system(size: 40, weight: .heavy, design: .default))
@@ -80,9 +83,9 @@ struct MainView: View {
                                 )
                                 .foregroundColor(.white) // Change the text color to match your design
                                 .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 10)
-                        }.padding()
+                        }
 
-                    }
+                    }.padding()
                 }
                 .padding() // Add padding to the main content
             }

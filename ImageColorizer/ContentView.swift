@@ -13,228 +13,163 @@ struct ContentView: View {
     @State private var isLoading = false
     @State private var showSaveSuccessAlert = false
     @State private var alertMessage = ""
+    @State private var animateGradient = false
     var backendURL: String
 
     var body: some View {
-        GeometryReader { geometry in
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Image Section
-                    if let inputImage = inputImage {
-                        VStack(spacing: 10) {
-                            Text("Original Image")
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                            Image(uiImage: inputImage)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(maxWidth: min(geometry.size.width * 0.8, 300), maxHeight: 300)
-                                .cornerRadius(10)
-                                .shadow(radius: 5)
-                        }
-                    } else {
-                        Text("Select an image or video to colorize")
-                            .font(.title2)
-                            .fontWeight(.bold)
-                            .foregroundColor(.primary)
-                            .padding()
-                            .multilineTextAlignment(.center)
-                    }
+            ZStack {
+                Image("background")
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea(.all)
 
-                    if let outputImage = outputImage {
-                        VStack(spacing: 10) {
-                            Text("Colorized Image")
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                            Image(uiImage: outputImage)
-                                .resizable()
-                                .scaledToFit()
-                                .frame(maxWidth: min(geometry.size.width * 0.8, 300), maxHeight: 300)
-                                .cornerRadius(10)
-                                .shadow(radius: 5)
-                        }
-                    }
-
-                    // Video Section
-                    if let inputVideoURL = inputVideoURL {
-                        VStack(spacing: 10) {
-                            Text("Original Video")
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                            VideoPlayer(player: AVPlayer(url: inputVideoURL))
-                                .frame(height: 300)
-                                .cornerRadius(10)
-                                .shadow(radius: 5)
-                        }
-                    }
-
-                    if let outputVideoURL = outputVideoURL {
-                        VStack(spacing: 10) {
-                            Text("Colorized Video")
-                                .font(.headline)
-                                .foregroundColor(.primary)
-                            VideoPlayer(player: AVPlayer(url: outputVideoURL))
-                                .frame(height: 300)
-                                .cornerRadius(10)
-                                .shadow(radius: 5)
-                        }
-                    }
-
-                    // Loading Indicator
-                    if isLoading {
-                        ProgressView()
-                            .padding()
-                    }
-
-                    // Buttons (Adaptive Layout)
-                    if geometry.size.width > 600 {
-                        // Horizontal Layout for Wide Screens
-                        HStack(spacing: 10) {
-                            Button(action: {
-                                showingImagePicker = true
-                            }) {
-                                Text("Select Image")
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Image Section
+                        if let inputImage = inputImage {
+                            VStack(spacing: 10) {
+                                Text("Original Image")
                                     .font(.headline)
-                                    .padding()
-                                    .frame(maxWidth: .infinity)
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
+                                Image(uiImage: inputImage)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(maxWidth: 300, maxHeight: 300)
                                     .cornerRadius(10)
                                     .shadow(radius: 5)
                             }
+                        } else {
+                            //Text and Buttons
+                            Spacer(minLength: 100)
 
-                            Button(action: {
-                                showingVideoPicker = true
-                            }) {
-                                Text("Select Video")
-                                    .font(.headline)
+                            VStack(spacing: 20) {
+                                Text("Select an image or video to colorize")
+                                    .font(.system(size: 36, weight: .medium, design: .default))
+                                    .foregroundStyle(
+                                        LinearGradient(
+                                            colors: [.blue, .purple, .pink],
+                                            startPoint: animateGradient ? .topLeading : .bottomLeading,
+                                            endPoint: animateGradient ? .bottomTrailing : .topTrailing
+                                        )
+                                    )
                                     .padding()
-                                    .frame(maxWidth: .infinity)
-                                    .background(Color.blue)
+                                    .frame(maxWidth: 350)
+                                    .multilineTextAlignment(.center)
+
+                                if inputVideoURL == nil {
+                                    GradientOutlinedButton(action: {
+                                        showingImagePicker = true
+                                    }, text: "Select Image")
+                                }
+
+                                if inputImage == nil {
+                                    GradientOutlinedButton(action: {
+                                        showingVideoPicker = true
+                                    }, text: "Select Video")
+                                }
+                            }
+
+                            Spacer()
+                        }
+
+                        if let outputImage = outputImage {
+                            VStack(spacing: 10) {
+                                Text("Colorized Image")
+                                    .font(.headline)
                                     .foregroundColor(.white)
+                                Image(uiImage: outputImage)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(maxWidth: 300, maxHeight: 300)
                                     .cornerRadius(10)
                                     .shadow(radius: 5)
                             }
                         }
-                        .padding(.horizontal)
-                    } else {
-                        // Vertical Layout for Narrow Screens
-                        VStack(spacing: 10) {
-                            Button(action: {
-                                showingImagePicker = true
-                            }) {
-                                Text("Select Image")
-                                    .font(.headline)
-                                    .padding()
-                                    .frame(maxWidth: .infinity)
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
-                                    .cornerRadius(10)
-                                    .shadow(radius: 5)
-                            }
 
-                            Button(action: {
-                                showingVideoPicker = true
-                            }) {
-                                Text("Select Video")
+                        // Video Section
+                        if let inputVideoURL = inputVideoURL {
+                            VStack(spacing: 10) {
+                                Text("Original Video")
                                     .font(.headline)
-                                    .padding()
-                                    .frame(maxWidth: .infinity)
-                                    .background(Color.blue)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.primary)
+                                VideoPlayer(player: AVPlayer(url: inputVideoURL))
+                                    .frame(height: 300)
                                     .cornerRadius(10)
                                     .shadow(radius: 5)
                             }
                         }
-                        .padding(.horizontal)
-                    }
 
-                    // Colorize Buttons
-                    if inputImage != nil && !isLoading {
-                        Button(action: {
-                            colorizeImage()
-                        }) {
-                            Text("Colorize Image")
-                                .font(.headline)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.green)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                                .shadow(radius: 5)
+                        if let outputVideoURL = outputVideoURL {
+                            VStack(spacing: 10) {
+                                Text("Colorized Video")
+                                    .font(.headline)
+                                    .foregroundColor(.white)
+                                VideoPlayer(player: AVPlayer(url: outputVideoURL))
+                                    .frame(height: 300)
+                                    .cornerRadius(10)
+                                    .shadow(radius: 5)
+                            }
                         }
-                        .padding(.horizontal)
-                    }
 
-                    if inputVideoURL != nil && !isLoading {
-                        Button(action: {
-                            colorizeVideo()
-                        }) {
-                            Text("Colorize Video")
-                                .font(.headline)
+                        // Loading Indicator
+                        if isLoading {
+                            ProgressView()
                                 .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.green)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                                .shadow(radius: 5)
                         }
-                        .padding(.horizontal)
-                    }
 
-                    // Save Buttons
-                    if outputImage != nil {
-                        Button(action: {
-                            saveImageToGallery(outputImage!)
-                        }) {
-                            Text("Save Image to Gallery")
-                                .font(.headline)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                                .shadow(radius: 5)
+                        // Colorize Buttons
+                        if inputImage != nil && !isLoading {
+                            GradientOutlinedButton(action: {
+                                colorizeImage()
+                            }, text: "Colorize Image")
+                            .padding(.horizontal)
                         }
-                        .padding(.horizontal)
-                    }
 
-                    if outputVideoURL != nil {
-                        Button(action: {
-                            saveVideoToGallery(outputVideoURL!)
-                        }) {
-                            Text("Save Video to Gallery")
-                                .font(.headline)
-                                .padding()
-                                .frame(maxWidth: .infinity)
-                                .background(Color.blue)
-                                .foregroundColor(.white)
-                                .cornerRadius(10)
-                                .shadow(radius: 5)
+                        if inputVideoURL != nil && !isLoading {
+                            GradientOutlinedButton(action: {
+                                colorizeVideo()
+                            }, text: "Colorize Video")
+                            .padding(.horizontal)
                         }
-                        .padding(.horizontal)
+
+                        // Save Buttons
+                        if outputImage != nil {
+                            GradientOutlinedButton(action: {
+                                saveImageToGallery(outputImage!)
+                            }, text: "Save Image to Gallery")
+                            .padding(.horizontal)
+                        }
+
+                        if outputVideoURL != nil {
+                            GradientOutlinedButton(action: {
+                                saveVideoToGallery(outputVideoURL!)
+                            }, text: "Save Video to Gallery")
+                            .padding(.horizontal)
+                        }
                     }
+                    .padding()
                 }
-                .padding()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(Color(.systemBackground))
+                .sheet(isPresented: $showingImagePicker, onDismiss: loadImage) {
+                    ImagePicker(image: $inputImage)
+                }
+                .sheet(isPresented: $showingVideoPicker, onDismiss: loadVideo) {
+                    VideoPicker(videoURL: $inputVideoURL)
+                }
+                .alert(isPresented: $showSaveSuccessAlert) {
+                    Alert(
+                        title: Text("Saved!"),
+                        message: Text(alertMessage),
+                        dismissButton: .default(Text("OK"))
+                    )
+                }
+            }
+            .onAppear {
+                withAnimation(.easeInOut(duration: 3).repeatForever(autoreverses: true)) {
+                    animateGradient.toggle()
+                }
             }
         }
-        .sheet(isPresented: $showingImagePicker, onDismiss: loadImage) {
-            ImagePicker(image: $inputImage)
-        }
-        .sheet(isPresented: $showingVideoPicker, onDismiss: loadVideo) {
-            VideoPicker(videoURL: $inputVideoURL)
-        }
-        .alert(isPresented: $showSaveSuccessAlert) {
-            Alert(
-                title: Text("Saved!"),
-                message: Text(alertMessage),
-                dismissButton: .default(Text("OK"))
-            )
-        }
-    }
-
+    
     func loadImage() {
         outputImage = nil
     }
@@ -459,6 +394,33 @@ struct VideoPicker: UIViewControllerRepresentable {
 
 struct VideoResponse: Codable {
     let outputURL: String
+}
+
+struct GradientOutlinedButton: View {
+    var action: () -> Void
+    var text: String
+
+    var body: some View {
+        Button(action: action) {
+            Text(text)
+                .font(.headline)
+                .padding()
+                .frame(maxWidth: 250)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 25)
+                        .stroke(
+                            LinearGradient(
+                                colors: [.blue, .purple, .pink],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ),
+                            lineWidth: 2
+                        )
+                )
+                .foregroundColor(.white)
+                .shadow(radius: 5)
+        }
+    }
 }
 
 struct ContentView_Previews: PreviewProvider {

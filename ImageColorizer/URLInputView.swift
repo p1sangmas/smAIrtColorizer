@@ -5,55 +5,85 @@ struct URLInputView: View {
     @State private var urlString: String = ""
     @State private var isURLValid: Bool = false
     @State private var showAlert: Bool = false
-    @Environment(\.presentationMode) var presentationMode // Use presentationMode to dismiss the view
-
+    @Environment(\.presentationMode) var presentationMode
+    @State private var animateGradient = false // For gradient animation
+    
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
+            ZStack {
+                // Background Image
+                Image("background")
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea(.all)
                 
-                Text("Configure URL")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundColor(.primary)
-                    .multilineTextAlignment(.center)
-                // URL Input Field
-                TextField("Enter Flask Backend URL", text: $urlString)
-                    .textFieldStyle(RoundedBorderTextFieldStyle())
-                    .padding()
-                    .autocapitalization(.none)
-                    .keyboardType(.URL)
-                    .onChange(of: urlString) { _, newValue in
-                        isURLValid = URL(string: newValue) != nil
-                    }
-
-                // Save Button
-                Button(action: {
-                    if isURLValid {
-                        backendURL = urlString // Save the URL
-                        presentationMode.wrappedValue.dismiss() // Dismiss the view
-                    } else {
-                        showAlert = true
-                    }
-                }) {
-                    Text("Save")
-                        .font(.headline)
+                VStack(spacing: 20) {
+                    // Title
+                    Text("Configure URL")
+                        .font(.system(size: 36, weight: .medium, design: .default))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.blue, .purple, .pink],
+                                startPoint: animateGradient ? .topLeading : .bottomLeading,
+                                endPoint: animateGradient ? .bottomTrailing : .topTrailing
+                            )
+                        )
+                        .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 5)
+                        .onAppear {
+                            withAnimation(.easeInOut(duration: 1).repeatForever(autoreverses: true)) {
+                                animateGradient.toggle()
+                            }
+                        }
+                    
+                    // URL Input Field
+                    TextField("Enter Flask Backend URL", text: $urlString)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                        .frame(maxWidth: 350)
                         .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(isURLValid ? Color.blue : Color.gray)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                        .shadow(radius: 5)
+                        .autocapitalization(.none)
+                        .keyboardType(.URL)
+                        .onChange(of: urlString) { _, newValue in
+                            isURLValid = URL(string: newValue) != nil
+                        }
+                    
+                    // Save Button
+                    Button(action: {
+                        if isURLValid {
+                            backendURL = urlString // Save the URL
+                            presentationMode.wrappedValue.dismiss() // Dismiss the view
+                        } else {
+                            showAlert = true
+                        }
+                    }) {
+                        Text("Save")
+                            .font(.headline)
+                            .padding()
+                            .frame(maxWidth: 250)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 25)
+                                    .stroke(
+                                        LinearGradient(
+                                            colors: [.blue, .purple, .pink],
+                                            startPoint: animateGradient ? .topLeading : .bottomLeading,
+                                            endPoint: animateGradient ? .bottomTrailing : .topTrailing
+                                        ),
+                                        lineWidth: 2
+                                    )
+                            )
+                            .foregroundColor(.white)
+                            .shadow(radius: 5)
+                    }
+                    .disabled(!isURLValid)
+                    .padding(.horizontal)
                 }
-                .disabled(!isURLValid)
-                .padding(.horizontal)
-            }
-            .padding()
-            .alert(isPresented: $showAlert) {
-                Alert(
-                    title: Text("Invalid URL"),
-                    message: Text("Please enter a valid URL."),
-                    dismissButton: .default(Text("OK"))
-                )
+                .padding()
+                .alert(isPresented: $showAlert) {
+                    Alert(
+                        title: Text("Invalid URL"),
+                        message: Text("Please enter a valid URL."),
+                        dismissButton: .default(Text("OK"))
+                    )
+                }
             }
         }
     }
