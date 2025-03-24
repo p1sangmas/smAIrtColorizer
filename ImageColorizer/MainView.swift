@@ -8,54 +8,83 @@ struct MainView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                
+                // Background Image
+                Image("background") // Replace with the name of your image file
+                    .resizable()
+                    .scaledToFill()
+                    .edgesIgnoringSafeArea(.all) // Make the image cover the entire screen
 
                 // Main Content
                 VStack(spacing: 40) {
-                    // Rainbow Title
+                    
+                    Spacer()
+                    // Title
                     Text("smAIrtColorizer")
-                    .font(.system(size: 46, weight: .bold, design: .default))
-                    .foregroundStyle(
-                        LinearGradient(
-                            colors: [.orange, .yellow, .cyan, .blue, .pink],
-                            startPoint: animateGradient ? .topLeading : .trailing,
-                            endPoint: animateGradient ? .bottomTrailing : .leading
+                        .font(.system(size: 40, weight: .heavy, design: .default))
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [.blue, .purple, .pink],
+                                startPoint: animateGradient ? .topLeading : .bottomLeading,
+                                endPoint: animateGradient ? .bottomTrailing : .topTrailing
+                            )
                         )
-                    )
-                    .hueRotation(.degrees(animateGradient ? 45 : 0))
-                    .ignoresSafeArea()
-                    .opacity(0.9)
-                    
-                    
+                        .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 5)
+                        .hueRotation(.degrees(animateGradient ? 45 : 0))
+                        .onAppear {
+                            withAnimation(.easeInOut(duration: 1).repeatForever(autoreverses: true)) {
+                                animateGradient.toggle()
+                            }
+                        }
 
-                    // "Configure URL" Button
-                    NavigationLink(destination: URLInputView(backendURL: $backendURL)) {
-                        Text("Configure URL")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .padding()
-                            .frame(maxWidth: 200)
-                            .background(Color.blue.opacity(0.8))
-                            .foregroundColor(.white)
-                            .cornerRadius(15)
-                            .shadow(radius: 5)
+                    Spacer() // Pushes content to the center vertically
+
+                    // Buttons
+                    VStack(spacing: 20) {
+                        
+                        // "Let's Colorize" Button
+                        NavigationLink(destination: ContentView(backendURL: backendURL)) {
+                            Text("Let's Colorize")
+                                .font(.title2)
+                                .fontWeight(.medium)
+                                .padding()
+                                .frame(maxWidth: 250)
+                                .background(
+                                    LinearGradient(
+                                        colors: [.blue, .purple],
+                                        startPoint: .leading,
+                                        endPoint: .trailing
+                                    )
+                                )
+                                .foregroundColor(.white)
+                                .cornerRadius(25)
+                                .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 10)
+                        }
+                        .disabled(backendURL.isEmpty) // Disable if URL is not set
+                        // "Configure URL" Button
+                        NavigationLink(destination: URLInputView(backendURL: $backendURL)) {
+                            Text("Configure URL")
+                                .font(.title2)
+                                .fontWeight(.regular)
+                                .padding()
+                                .frame(maxWidth: 250)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 25)
+                                        .stroke(
+                                            LinearGradient(
+                                                colors: [.blue, .pink],
+                                                startPoint: .leading,
+                                                endPoint: .trailing
+                                            ),
+                                            lineWidth: 2 // Adjust the border width as needed
+                                        )
+                                )
+                                .foregroundColor(.white) // Change the text color to match your design
+                                .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 10)
+                        }.padding()
+
                     }
-                    
-                    // "Let's Colorize" Button
-                    NavigationLink(destination: ContentView(backendURL: backendURL)) {
-                        Text("Let's Colorize")
-                            .font(.title2)
-                            .fontWeight(.semibold)
-                            .padding()
-                            .frame(maxWidth: 200)
-                            .background(Color.blue.opacity(0.8))
-                            .foregroundColor(.white)
-                            .cornerRadius(15)
-                            .shadow(radius: 5)
-                    }
-                    .disabled(backendURL.isEmpty) // Disable if URL is not set
                 }
-                .padding()
+                .padding() // Add padding to the main content
             }
         }
     }
