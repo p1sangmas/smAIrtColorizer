@@ -1,6 +1,8 @@
-# smAIrtColorizer
+# 🪄🌈 smAIrtColorizer
 
 This project provides an end-to-end pipeline for image and video colorization using a deep learning model. The backend is implemented in Python with Flask, while the frontend is built using Swift for iOS.
+
+![smAIrtColorizer](./showcase/smAIrtColorizer.png)
 
 ## Table of Contents
 - [Features](#features)
@@ -19,6 +21,8 @@ This project provides an end-to-end pipeline for image and video colorization us
 - Support for batch processing of images in a directory.
 - iOS app for user-friendly interaction.
 - GPU acceleration for faster processing.
+
+![smAIrtColorizer2](./showcase/smAIrtColorizer2.png)
 
 ---
 
@@ -106,4 +110,4 @@ If you use this project, please cite the original model repository:
 
 ## Acknowledgments
 This project uses the DDColor model from the [DDColor repository](https://github.com/piddnad/DDColor). Special thanks to the authors for providing the pre-trained model and architecture.
-```
+
