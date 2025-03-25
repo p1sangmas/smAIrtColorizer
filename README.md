@@ -93,16 +93,15 @@ This project provides an end-to-end pipeline for image and video colorization us
 ---
 
 ## Citation
-If you use this project, please cite the original model repository:
+If you use this project, please tag me and cite the original model repository 😊:
 
 ```
-@misc{ddcolor,
-  author = {Piddnad},
-  title = {DDColor: Deep Learning for Image Colorization},
-  year = {2023},
-  publisher = {GitHub},
-  journal = {GitHub repository},
-  howpublished = {\url{https://github.com/piddnad/DDColor}}
+@inproceedings{kang2023ddcolor,
+  title={DDColor: Towards Photo-Realistic Image Colorization via Dual Decoders},
+  author={Kang, Xiaoyang and Yang, Tao and Ouyang, Wenqi and Ren, Peiran and Li, Lingzhi and Xie, Xuansong},
+  booktitle={Proceedings of the IEEE/CVF International Conference on Computer Vision},
+  pages={328--338},
+  year={2023}
 }
 ```
 
