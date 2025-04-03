@@ -13,163 +13,202 @@ struct ContentView: View {
     @State private var isLoading = false
     @State private var showSaveSuccessAlert = false
     @State private var alertMessage = ""
-    @State private var animateGradient = false
     var backendURL: String
 
     var body: some View {
-            ZStack {
-                Image("background")
-                    .resizable()
-                    .scaledToFill()
-                    .edgesIgnoringSafeArea(.all)
+        NavigationView {
+            VStack(spacing: 20) {
+                Spacer()
+                
+                // Loading Indicator
+                if isLoading {
+                    ProgressView("Processing...")
+                        .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                        .padding()
+                }
 
-                ScrollView {
-                    VStack(spacing: 20) {
-                        // Image Section
+                // Carousel for Images
+                if inputImage != nil || outputImage != nil {
+                    TabView {
                         if let inputImage = inputImage {
-                            VStack(spacing: 10) {
+                            VStack {
                                 Text("Original Image")
                                     .font(.headline)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(.secondary)
                                 Image(uiImage: inputImage)
                                     .resizable()
                                     .scaledToFit()
                                     .frame(maxWidth: 300, maxHeight: 300)
-                                    .cornerRadius(10)
+                                    .cornerRadius(15)
                                     .shadow(radius: 5)
-                            }
-                        } else {
-                            //Text and Buttons
-                            Spacer(minLength: 100)
-
-                            VStack(spacing: 20) {
-                                Text("Select an image or video to colorize")
-                                    .font(.system(size: 36, weight: .medium, design: .default))
-                                    .foregroundStyle(
-                                        LinearGradient(
-                                            colors: [.blue, .purple, .pink],
-                                            startPoint: animateGradient ? .topLeading : .bottomLeading,
-                                            endPoint: animateGradient ? .bottomTrailing : .topTrailing
-                                        )
-                                    )
                                     .padding()
-                                    .frame(maxWidth: 350)
-                                    .multilineTextAlignment(.center)
-
-                                if inputVideoURL == nil {
-                                    GradientOutlinedButton(action: {
-                                        showingImagePicker = true
-                                    }, text: "Select Image")
-                                }
-
-                                if inputImage == nil {
-                                    GradientOutlinedButton(action: {
-                                        showingVideoPicker = true
-                                    }, text: "Select Video")
-                                }
                             }
-
-                            Spacer()
                         }
 
                         if let outputImage = outputImage {
-                            VStack(spacing: 10) {
+                            VStack {
                                 Text("Colorized Image")
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.secondary)
                                 Image(uiImage: outputImage)
                                     .resizable()
                                     .scaledToFit()
                                     .frame(maxWidth: 300, maxHeight: 300)
-                                    .cornerRadius(10)
+                                    .cornerRadius(15)
                                     .shadow(radius: 5)
+                                    .padding()
                             }
                         }
+                    }
+                    .tabViewStyle(PageTabViewStyle())
+                    .frame(height: 350)
+                    
+                    // Colorize Image Button
+                    if outputImage == nil {
+                        Button(action: {
+                            colorizeImage()
+                        }) {
+                            Label("Colorize Image", systemImage: "paintbrush")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                                .shadow(radius: 5)
+                        }
+                        .frame(maxWidth: 250)
+                    } else {
+                        // Save Image Button
+                        Button(action: {
+                            if let outputImage = outputImage {
+                                saveImageToGallery(outputImage)
+                            }
+                        }) {
+                            Label("Save Image to Gallery", systemImage: "square.and.arrow.down")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.green)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                                .shadow(radius: 5)
+                        }
+                        .frame(maxWidth: 250)
+                    }
+                }
 
-                        // Video Section
+                // Carousel for Videos
+                if inputVideoURL != nil || outputVideoURL != nil {
+                    TabView {
                         if let inputVideoURL = inputVideoURL {
-                            VStack(spacing: 10) {
+                            VStack {
                                 Text("Original Video")
                                     .font(.headline)
-                                    .foregroundColor(.primary)
+                                    .foregroundColor(.secondary)
                                 VideoPlayer(player: AVPlayer(url: inputVideoURL))
                                     .frame(height: 300)
-                                    .cornerRadius(10)
+                                    .cornerRadius(15)
                                     .shadow(radius: 5)
+                                    .padding()
                             }
                         }
 
                         if let outputVideoURL = outputVideoURL {
-                            VStack(spacing: 10) {
+                            VStack {
                                 Text("Colorized Video")
                                     .font(.headline)
-                                    .foregroundColor(.white)
+                                    .foregroundColor(.secondary)
                                 VideoPlayer(player: AVPlayer(url: outputVideoURL))
                                     .frame(height: 300)
-                                    .cornerRadius(10)
+                                    .cornerRadius(15)
                                     .shadow(radius: 5)
+                                    .padding()
                             }
                         }
-
-                        // Loading Indicator
-                        if isLoading {
-                            ProgressView()
-                                .padding()
-                        }
-
-                        // Colorize Buttons
-                        if inputImage != nil && !isLoading {
-                            GradientOutlinedButton(action: {
-                                colorizeImage()
-                            }, text: "Colorize Image")
-                            .padding(.horizontal)
-                        }
-
-                        if inputVideoURL != nil && !isLoading {
-                            GradientOutlinedButton(action: {
-                                colorizeVideo()
-                            }, text: "Colorize Video")
-                            .padding(.horizontal)
-                        }
-
-                        // Save Buttons
-                        if outputImage != nil {
-                            GradientOutlinedButton(action: {
-                                saveImageToGallery(outputImage!)
-                            }, text: "Save Image to Gallery")
-                            .padding(.horizontal)
-                        }
-
-                        if outputVideoURL != nil {
-                            GradientOutlinedButton(action: {
-                                saveVideoToGallery(outputVideoURL!)
-                            }, text: "Save Video to Gallery")
-                            .padding(.horizontal)
-                        }
                     }
-                    .padding()
+                    .tabViewStyle(PageTabViewStyle())
+                    .frame(height:400)
+                    
+                    // Colorize Video Button
+                    if outputVideoURL == nil {
+                        Button(action: {
+                            colorizeVideo()
+                        }) {
+                            Label("Colorize Video", systemImage: "film")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                                .shadow(radius: 5)
+                        }
+                        .frame(maxWidth: 250)
+                    } else {
+                        // Save Video Button
+                        Button(action: {
+                            if let outputVideoURL = outputVideoURL {
+                                saveVideoToGallery(outputVideoURL)
+                            }
+                        }) {
+                            Label("Save Video to Gallery", systemImage: "square.and.arrow.down")
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.green)
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                                .shadow(radius: 5)
+                        }
+                        .frame(maxWidth: 250)
+                    }
                 }
-                .sheet(isPresented: $showingImagePicker, onDismiss: loadImage) {
-                    ImagePicker(image: $inputImage)
+
+                // Buttons to Select Image or Video
+                VStack(spacing: 20) {
+                    Button(action: {
+                        showingImagePicker = true
+                    }) {
+                        Label("Select Image", systemImage: "photo")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.accentColor)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                    }
+                    .frame(maxWidth: 250)
+
+                    Button(action: {
+                        showingVideoPicker = true
+                    }) {
+                        Label("Select Video", systemImage: "video")
+                            .frame(maxWidth: .infinity)
+                            .padding()
+                            .background(Color.accentColor)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .shadow(radius: 5)
+                    }
+                    .frame(maxWidth: 250)
                 }
-                .sheet(isPresented: $showingVideoPicker, onDismiss: loadVideo) {
-                    VideoPicker(videoURL: $inputVideoURL)
-                }
-                .alert(isPresented: $showSaveSuccessAlert) {
-                    Alert(
-                        title: Text("Saved!"),
-                        message: Text(alertMessage),
-                        dismissButton: .default(Text("OK"))
-                    )
-                }
+
+                Spacer()
             }
-            .onAppear {
-                withAnimation(.easeInOut(duration: 3).repeatForever(autoreverses: true)) {
-                    animateGradient.toggle()
-                }
+            .padding()
+            .sheet(isPresented: $showingImagePicker, onDismiss: loadImage) {
+                ImagePicker(image: $inputImage)
+            }
+            .sheet(isPresented: $showingVideoPicker, onDismiss: loadVideo) {
+                VideoPicker(videoURL: $inputVideoURL)
+            }
+            .alert(isPresented: $showSaveSuccessAlert) {
+                Alert(
+                    title: Text("Saved!"),
+                    message: Text(alertMessage),
+                    dismissButton: .default(Text("OK"))
+                )
             }
         }
-    
+    }
+
     func loadImage() {
         outputImage = nil
     }
@@ -177,135 +216,133 @@ struct ContentView: View {
     func loadVideo() {
         outputVideoURL = nil
     }
-
+    
     func colorizeImage() {
-        guard let inputImage = inputImage else { return }
-        isLoading = true
+            guard let inputImage = inputImage else { return }
+            isLoading = true
 
-        // Convert the image to JPEG data
-        guard let imageData = inputImage.jpegData(compressionQuality: 1.0) else {
-            isLoading = false
-            return
-        }
-
-        // Use the backend URL provided by the user
-        guard let url = URL(string: "\(backendURL)/colorize") else {
-            isLoading = false
-            return
-        }
-
-        // Create the request
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-
-        // Set the content type
-        let boundary = "Boundary-\(UUID().uuidString)"
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-
-        // Create the body of the request
-        var body = Data()
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
-        body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
-        body.append(imageData)
-        body.append("\r\n".data(using: .utf8)!)
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        request.httpBody = body
-
-        // Send the request
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            DispatchQueue.main.async {
+            // Convert the image to JPEG data
+            guard let imageData = inputImage.jpegData(compressionQuality: 1.0) else {
                 isLoading = false
+                return
+            }
 
+            // Use the backend URL provided by the user
+            guard let url = URL(string: "\(backendURL)/colorize") else {
+                isLoading = false
+                return
+            }
+
+            // Create the request
+            var request = URLRequest(url: url)
+            request.httpMethod = "POST"
+
+            // Set the content type
+            let boundary = "Boundary-\(UUID().uuidString)"
+            request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+
+            // Create the body of the request
+            var body = Data()
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"file\"; filename=\"image.jpg\"\r\n".data(using: .utf8)!)
+            body.append("Content-Type: image/jpeg\r\n\r\n".data(using: .utf8)!)
+            body.append(imageData)
+            body.append("\r\n".data(using: .utf8)!)
+            body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+            request.httpBody = body
+
+            // Send the request
+            URLSession.shared.dataTask(with: request) { data, response, error in
+                DispatchQueue.main.async {
+                    isLoading = false
+
+                    if let error = error {
+                        print("Error: \(error.localizedDescription)")
+                        return
+                    }
+
+                    if let data = data, let image = UIImage(data: data) {
+                        outputImage = image
+                    }
+                }
+            }.resume()
+        }
+
+        func colorizeVideo() {
+            guard let inputVideoURL = inputVideoURL else { return }
+            isLoading = true
+
+            uploadVideoToBackend(inputVideoURL) { result in
+                DispatchQueue.main.async {
+                    isLoading = false
+                    switch result {
+                    case .success(let outputURL):
+                        outputVideoURL = outputURL
+                    case .failure(let error):
+                        print("Error: \(error.localizedDescription)")
+                    }
+                }
+            }
+        }
+
+
+        func uploadVideoToBackend(_ videoURL: URL, completion: @escaping (Result<URL, Error>) -> Void) {
+            let backendEndpoint = URL(string: "\(backendURL)/colorize-video")!
+
+            var request = URLRequest(url: backendEndpoint)
+            request.httpMethod = "POST"
+            
+            let boundary = UUID().uuidString
+            request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+            
+            var body = Data()
+            
+            // Add video file
+            let videoData = try? Data(contentsOf: videoURL)
+            body.append("--\(boundary)\r\n".data(using: .utf8)!)
+            body.append("Content-Disposition: form-data; name=\"file\"; filename=\"video.mp4\"\r\n".data(using: .utf8)!)
+            body.append("Content-Type: video/mp4\r\n\r\n".data(using: .utf8)!)
+            body.append(videoData!)
+            body.append("\r\n".data(using: .utf8)!)
+            body.append("--\(boundary)--\r\n".data(using: .utf8)!)
+            request.httpBody = body
+            
+            // Send the request
+            URLSession.shared.dataTask(with: request) { data, response, error in
                 if let error = error {
-                    print("Error: \(error.localizedDescription)")
+                    completion(.failure(error))
                     return
                 }
-
-                if let data = data, let image = UIImage(data: data) {
-                    outputImage = image
-                }
-            }
-        }.resume()
-    }
-
-    func colorizeVideo() {
-        guard let inputVideoURL = inputVideoURL else { return }
-        isLoading = true
-
-        uploadVideoToBackend(inputVideoURL) { result in
-            DispatchQueue.main.async {
-                isLoading = false
-                switch result {
-                case .success(let outputURL):
-                    outputVideoURL = outputURL
-                case .failure(let error):
-                    print("Error: \(error.localizedDescription)")
-                }
-            }
-        }
-    }
-
-
-    func uploadVideoToBackend(_ videoURL: URL, completion: @escaping (Result<URL, Error>) -> Void) {
-        let backendEndpoint = URL(string: "\(backendURL)/colorize-video")!
-
-        var request = URLRequest(url: backendEndpoint)
-        request.httpMethod = "POST"
-        
-        let boundary = UUID().uuidString
-        request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-        
-        var body = Data()
-        
-        // Add video file
-        let videoData = try? Data(contentsOf: videoURL)
-        body.append("--\(boundary)\r\n".data(using: .utf8)!)
-        body.append("Content-Disposition: form-data; name=\"file\"; filename=\"video.mp4\"\r\n".data(using: .utf8)!)
-        body.append("Content-Type: video/mp4\r\n\r\n".data(using: .utf8)!)
-        body.append(videoData!)
-        body.append("\r\n".data(using: .utf8)!)
-        body.append("--\(boundary)--\r\n".data(using: .utf8)!)
-        request.httpBody = body
-        
-        // Send the request
-        URLSession.shared.dataTask(with: request) { data, response, error in
-            if let error = error {
-                completion(.failure(error))
-                return
-            }
-            
-            // Log the raw response for debugging
-            if let data = data, let rawResponse = String(data: data, encoding: .utf8) {
-                print("Backend Response: \(rawResponse)")
-            }
-            
-            guard let data = data else {
-                completion(.failure(NSError(domain: "InvalidResponse", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data received"])))
-                return
-            }
-            
-            // Parse the JSON response
-            do {
-                let videoResponse = try JSONDecoder().decode(VideoResponse.self, from: data)
-                let outputURL = videoResponse.outputURL
                 
-                // Download the colorized video
-                if let videoFileURL = URL(string: outputURL) {
-                    let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("colorized_video.mp4")
-                    let videoData = try Data(contentsOf: videoFileURL)
-                    try videoData.write(to: tempURL)
-                    completion(.success(tempURL))
-                } else {
-                    completion(.failure(NSError(domain: "InvalidURL", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid output URL"])))
+                // Log the raw response for debugging
+                if let data = data, let rawResponse = String(data: data, encoding: .utf8) {
+                    print("Backend Response: \(rawResponse)")
                 }
-            } catch {
-                completion(.failure(error))
-            }
-        }.resume()
-    }
-
-
+                
+                guard let data = data else {
+                    completion(.failure(NSError(domain: "InvalidResponse", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data received"])))
+                    return
+                }
+                
+                // Parse the JSON response
+                do {
+                    let videoResponse = try JSONDecoder().decode(VideoResponse.self, from: data)
+                    let outputURL = videoResponse.outputURL
+                    
+                    // Download the colorized video
+                    if let videoFileURL = URL(string: outputURL) {
+                        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("colorized_video.mp4")
+                        let videoData = try Data(contentsOf: videoFileURL)
+                        try videoData.write(to: tempURL)
+                        completion(.success(tempURL))
+                    } else {
+                        completion(.failure(NSError(domain: "InvalidURL", code: -1, userInfo: [NSLocalizedDescriptionKey: "Invalid output URL"])))
+                    }
+                } catch {
+                    completion(.failure(error))
+                }
+            }.resume()
+        }
 
     func saveImageToGallery(_ image: UIImage) {
         UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)

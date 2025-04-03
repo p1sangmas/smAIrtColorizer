@@ -1,102 +1,75 @@
 import SwiftUI
 
 struct URLInputView: View {
-    @Binding var backendURL: String // Binding to update the URL
+    @AppStorage("backendURL") private var backendURL: String = "" // Persistently store the URL
     @State private var urlString: String = ""
     @State private var isURLValid: Bool = false
     @State private var showAlert: Bool = false
     @Environment(\.presentationMode) var presentationMode
-    @State private var animateGradient = false // For gradient animation
-    
+
     var body: some View {
         NavigationStack {
-            ZStack {
-                // Background Image
-                Image("background")
-                    .resizable()
-                    .scaledToFill()
-                    .edgesIgnoringSafeArea(.all)
-                
-                VStack(spacing: 20) {
-                    // Title
-                    Text("Configure URL")
-                        .font(.system(size: 36, weight: .medium, design: .default))
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [.blue, .purple, .pink],
-                                startPoint: animateGradient ? .topLeading : .bottomLeading,
-                                endPoint: animateGradient ? .bottomTrailing : .topTrailing
-                            )
-                        )
-                        .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 5)
-                        .onAppear {
-                            withAnimation(.easeInOut(duration: 1).repeatForever(autoreverses: true)) {
-                                animateGradient.toggle()
-                            }
-                        }
-                    
-                    // URL Input Field
+            VStack(spacing: 20) {
+                // URL Input Field
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Backend URL")
+                        .font(.headline)
+                        .foregroundColor(.secondary)
+
                     TextField("Enter Flask Backend URL", text: $urlString)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
-                        .frame(maxWidth: 350)
-                        .padding()
                         .autocapitalization(.none)
                         .keyboardType(.URL)
                         .onChange(of: urlString) { _, newValue in
                             isURLValid = URL(string: newValue) != nil
                         }
-                    
-                    // Save Button
-                    Button(action: {
-                        if isURLValid {
-                            backendURL = urlString // Save the URL
-                            presentationMode.wrappedValue.dismiss() // Dismiss the view
-                        } else {
-                            showAlert = true
-                        }
-                    }) {
-                        Text("Save")
-                            .font(.headline)
-                            .padding()
-                            .frame(maxWidth: 250)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 25)
-                                    .stroke(
-                                        LinearGradient(
-                                            colors: [.blue, .purple, .pink],
-                                            startPoint: animateGradient ? .topLeading : .bottomLeading,
-                                            endPoint: animateGradient ? .bottomTrailing : .topTrailing
-                                        ),
-                                        lineWidth: 2
-                                    )
-                            )
-                            .foregroundColor(.white)
-                            .shadow(radius: 5)
+                }
+                .frame(maxWidth: 350)
+
+                // Save Button
+                Button(action: {
+                    if isURLValid {
+                        backendURL = urlString // Save the URL persistently
+                        presentationMode.wrappedValue.dismiss() // Dismiss the view
+                    } else {
+                        showAlert = true
                     }
-                    .disabled(!isURLValid)
-                    .padding(.horizontal)
+                }) {
+                    Text("Save")
+                        .font(.headline)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(isURLValid ? Color.accentColor : Color.gray.opacity(0.5))
+                        .foregroundColor(.white)
+                        .cornerRadius(12)
+                        .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 5)
                 }
-                .padding()
-                .alert(isPresented: $showAlert) {
-                    Alert(
-                        title: Text("Invalid URL"),
-                        message: Text("Please enter a valid URL."),
-                        dismissButton: .default(Text("OK"))
-                    )
-                }
+                .frame(maxWidth: 250)
+                .disabled(!isURLValid)
+
+                Spacer()
             }
+            .padding()
+            .onAppear {
+                urlString = backendURL // Load the saved URL when the view appears
+            }
+            .alert(isPresented: $showAlert) {
+                Alert(
+                    title: Text("Invalid URL"),
+                    message: Text("Please enter a valid URL."),
+                    dismissButton: .default(Text("OK"))
+                )
+            }
+            .navigationTitle("Configure URL")
+            .navigationBarTitleDisplayMode(.inline)
         }
     }
 }
 
-
 // Preview
 struct URLInputView_Previews: PreviewProvider {
     static var previews: some View {
-        // Use a State variable to simulate the backendURL binding
-        StatefulPreviewWrapper("") { backendURL in
-            URLInputView(backendURL: backendURL)
-        }
+        URLInputView()
     }
 }
 
