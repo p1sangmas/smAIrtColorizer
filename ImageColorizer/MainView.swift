@@ -6,14 +6,16 @@ struct MainView: View {
     @State private var animateGradient = false
     @AppStorage("backendURL") private var backendURL: String = "" // Save URL persistently
     @State private var isConnected = true // Network connection status
+    @State private var displayedText = "" // Text for typewriter animation
+    private let fullText = "smAIrtColorizer" // Full text to display
     private let monitor = NWPathMonitor()
     private let queue = DispatchQueue(label: "NetworkMonitor")
 
     var body: some View {
         NavigationStack {
             ZStack {
-                // Network Status Indicator
-                VStack {
+                VStack(spacing: 30) {
+                    // Network Status Indicator
                     HStack {
                         Spacer()
                         HStack(spacing: 8) {
@@ -30,47 +32,41 @@ struct MainView: View {
                         .shadow(radius: 5)
                         Spacer()
                     }
-                    .padding(.top, 10)
-                    Spacer()
-                }
+                    .padding(.top, 20)
 
-                // Main Content
-                VStack(spacing: 10) {
                     Spacer()
 
-                    // Icon
+                    // App Icon
                     Image(systemName: "theatermask.and.paintbrush.fill")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 40, height: 40)
+                        .frame(width: 80, height: 80)
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.blue, .cyan],
+                                colors: [.blue, .purple],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             )
                         )
+                        .shadow(color: .black.opacity(0.1), radius: 10, x: 0, y: 5)
 
-                    // Animated Title
-                    Text("smAIrtColorizer")
-                        .font(.system(size: 36, weight: .heavy, design: .default))
+                    // Typewriter Animated Title
+                    Text(displayedText)
+                        .font(.system(size: 40, weight: .heavy, design: .default))
                         .foregroundStyle(
                             LinearGradient(
-                                colors: [.blue, .cyan],
-                                startPoint: animateGradient ? .topLeading : .bottomLeading,
-                                endPoint: animateGradient ? .bottomTrailing : .topTrailing
+                                colors: [.blue, .purple],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
                             )
                         )
-                        .hueRotation(.degrees(animateGradient ? 45 : 0))
                         .onAppear {
-                            withAnimation(.easeInOut(duration: 1.5)) {
-                                animateGradient.toggle()
-                            }
+                            startTypewriterAnimation()
                         }
 
                     Spacer()
 
-                    // Buttons
+                    // Buttons Section
                     VStack(spacing: 20) {
                         // "Let's Colorize" Button
                         NavigationLink(destination: ContentView(backendURL: backendURL)) {
@@ -84,7 +80,6 @@ struct MainView: View {
                                 .cornerRadius(12)
                                 .shadow(color: .black.opacity(0.2), radius: 5, x: 0, y: 5)
                         }
-                        .padding(.horizontal, 20)
                         .disabled(backendURL.isEmpty) // Disable if URL is not set
                         .opacity(backendURL.isEmpty ? 0.5 : 1.0)
 
@@ -101,10 +96,15 @@ struct MainView: View {
                                 )
                                 .foregroundColor(.accentColor)
                         }
-                        .padding(.horizontal, 20)
                     }
 
                     Spacer()
+
+                    // Footer
+                    Text("Version 1.0.0")
+                        .font(.footnote)
+                        .foregroundColor(.secondary)
+                        .padding(.bottom, 10)
                 }
                 .padding()
             }
@@ -124,6 +124,20 @@ struct MainView: View {
         monitor.start(queue: queue)
     }
 
+    // Typewriter Animation
+    private func startTypewriterAnimation() {
+        displayedText = ""
+        var currentIndex = 0
+        Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { timer in
+            if currentIndex < fullText.count {
+                let index = fullText.index(fullText.startIndex, offsetBy: currentIndex)
+                displayedText.append(fullText[index])
+                currentIndex += 1
+            } else {
+                timer.invalidate()
+            }
+        }
+    }
 }
 
 // Preview
