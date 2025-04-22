@@ -19,49 +19,65 @@ struct ContentView: View {
         NavigationView {
             VStack(spacing: 20) {
                 Spacer()
-                
-                // Loading Indicator
-                if isLoading {
-                    ProgressView("Processing...")
-                        .progressViewStyle(CircularProgressViewStyle(tint: .blue))
-                        .padding()
-                }
 
                 // Carousel for Images
                 if inputImage != nil || outputImage != nil {
                     TabView {
                         if let inputImage = inputImage {
-                            VStack {
-                                Text("Original Image")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                                Image(uiImage: inputImage)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(maxWidth: 300, maxHeight: 300)
-                                    .cornerRadius(15)
+                            ZStack {
+//                                GlowEffect(size: CGSize(width: 320, height: 300))
+                                RoundedRectangle(cornerRadius: 15)
+                                    .fill(Color(.systemGray5))
                                     .shadow(radius: 5)
-                                    .padding()
+                                VStack {
+                                    Text("Original Image")
+                                        .font(.headline)
+                                        .foregroundColor(.secondary)
+                                    Image(uiImage: inputImage)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(maxWidth: 250, maxHeight: 250)
+                                        .cornerRadius(15)
+                                        .padding()
+                                }
+                                .padding()
                             }
+                            .padding()
+                            .clipShape(RoundedRectangle(cornerRadius: 15)) // Ensure content stays within bounds
                         }
 
                         if let outputImage = outputImage {
-                            VStack {
-                                Text("Colorized Image")
-                                    .font(.headline)
-                                    .foregroundColor(.secondary)
-                                Image(uiImage: outputImage)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(maxWidth: 300, maxHeight: 300)
-                                    .cornerRadius(15)
+                            ZStack {
+                                GlowEffect(size: CGSize(width: 320, height: 300))
+                                RoundedRectangle(cornerRadius: 15)
+                                    .fill(Color(.systemGray5))
                                     .shadow(radius: 5)
-                                    .padding()
+                                VStack {
+                                    Text("Colorized Image")
+                                        .font(.headline)
+                                        .foregroundColor(.secondary)
+                                    Image(uiImage: outputImage)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(maxWidth: 250, maxHeight: 250)
+                                        .cornerRadius(15)
+                                        .padding()
+                                }
+                                .padding()
                             }
+                            .padding()
+                            .clipShape(RoundedRectangle(cornerRadius: 15)) // Ensure content stays within bounds
                         }
                     }
                     .tabViewStyle(PageTabViewStyle())
                     .frame(height: 350)
+                    
+                    // Loading Indicator
+                    if isLoading {
+                        ProgressView("Applying magic...")
+                            .progressViewStyle(CircularProgressViewStyle(tint: .blue))
+                            .padding()
+                    }
                     
                     // Colorize Image Button
                     if outputImage == nil {
@@ -71,7 +87,7 @@ struct ContentView: View {
                             Label("Colorize Image", systemImage: "paintbrush")
                                 .frame(maxWidth: .infinity)
                                 .padding()
-                                .background(Color.blue)
+                                .background(Color.green)
                                 .foregroundColor(.white)
                                 .cornerRadius(10)
                                 .shadow(radius: 5)
