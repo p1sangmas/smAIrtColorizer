@@ -6,11 +6,16 @@ import torch
 from basicsr.archs.ddcolor_arch import DDColor
 import torch.nn.functional as F
 import time
+import argparse
 
 app = Flask(__name__)
 
-# Define the model path
-MODEL_PATH = "./path_to_you_model.pt"
+# Define the model path - Update this to your model path
+MODEL_PATH = "./pretrained_model.pt"
+
+# Default server configuration
+DEFAULT_HOST = "0.0.0.0"  # Listen on all interfaces
+DEFAULT_PORT = 5000       # Use a common Flask port
 
 # Check if GPU is available
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -212,8 +217,10 @@ def colorize_video():
             os.remove(os.path.join(colorized_frames_dir, file))
         os.rmdir(colorized_frames_dir)
 
-        # Return the colorized video
-        full_url = f"http://localhost:3000/colorized_video.mp4"
+        # Get server URL from request
+        server_url = request.host_url.rstrip('/')
+        full_url = f"{server_url}/colorized_video.mp4"
+        
         return jsonify({"outputURL": full_url}), 200, {"Content-Type": "application/json"}
 
     except Exception as e:
@@ -225,4 +232,19 @@ def get_colorized_video():
     return send_from_directory(".", "colorized_video.mp4")
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=3000)
+    # Parse command-line arguments
+    parser = argparse.ArgumentParser(description="Colorization API Server")
+    parser.add_argument("--host", default=DEFAULT_HOST, help=f"Host address to bind (default: {DEFAULT_HOST})")
+    parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"Port to bind (default: {DEFAULT_PORT})")
+    parser.add_argument("--model", default=MODEL_PATH, help=f"Path to the pretrained model (default: {MODEL_PATH})")
+    
+    args = parser.parse_args()
+    
+    # Update model path if provided
+    if args.model != MODEL_PATH:
+        MODEL_PATH = args.model
+        print(f"Using model: {MODEL_PATH}")
+        colorizer = ImageColorizationPipeline(model_path=MODEL_PATH, input_size=512, model_size='large')
+    
+    print(f"Starting server on {args.host}:{args.port}")
+    app.run(host=args.host, port=args.port, debug=False)
