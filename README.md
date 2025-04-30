@@ -2,7 +2,7 @@
 
 This project provides an end-to-end pipeline for image and video colorization using a deep learning model. The backend is implemented in Python with Flask, while the frontend is built using Swift for iOS.
 
-![smAIrtColorizer](./showcase/smAIrtColorizer.png)
+![smAIrtColorizer](./showcase/smartcolorizer1.png)
 
 ## Table of Contents
 - [Features](#features)
@@ -24,7 +24,7 @@ This project provides an end-to-end pipeline for image and video colorization us
 - Performance metrics calculation (PSNR, SSIM).
 - Multi-scale color decoder for high-quality colorization.
 
-![smAIrtColorizer2](./showcase/smAIrtColorizer2.png)
+![smAIrtColorizer2](./showcase/smartcolorizer2.png)
 
 ---
 
